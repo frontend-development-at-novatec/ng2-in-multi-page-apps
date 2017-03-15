@@ -39,16 +39,16 @@ export class AppModule {
         appRef.bootstrap(factory);
       }
     });
-
+    // TODO: load only if needed.
     this.moduleLoader.load('./lazy/lazy.module#LazyModule')
       .then((moduleFactory: NgModuleFactory<any>) => {
         const ngModuleRef = moduleFactory.create(this.injector);
         const componentsInjects = ngModuleRef.injector.get("components") as any[];
         console.log("componentsInjects", componentsInjects);
-        componentsInjects.forEach((components: any[]) => {
-          components.forEach((component: any) => {
-            if (document.querySelector(component.selector)) {
-              const compFactory = ngModuleRef.componentFactoryResolver.resolveComponentFactory(component.component);
+        componentsInjects.forEach((components: Type<{}>[]) => {
+          components.forEach((component: Type<{}>) => {
+            const compFactory = ngModuleRef.componentFactoryResolver.resolveComponentFactory(component);
+            if (document.querySelector(compFactory.selector)) {
               appRef.bootstrap(compFactory);
             }
           });

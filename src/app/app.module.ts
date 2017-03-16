@@ -1,10 +1,10 @@
 import { RouterModule, Routes } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
-import { SystemJsNgModuleLoader, NgModule, ApplicationRef, ComponentFactory, ComponentFactoryResolver, Type, Compiler, Injector, ViewChild, NgModuleFactory, ModuleWithComponentFactories } from '@angular/core';
+import { SystemJsNgModuleLoader, NgModule, ApplicationRef, Injector, NgModuleFactory, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-const routes: Routes = [{ path: "/lazy", loadChildren: "./lazy/lazy.module" },{ path: "/lazy-two", loadChildren: "./lazy-two/lazy-two.module" }]
+const routes: Routes = [{ path: "/lazy", loadChildren: "./lazy/lazy.module" }, { path: "/lazy-two", loadChildren: "./lazy-two/lazy-two.module" }]
 
 @NgModule({
   declarations: [],
@@ -14,18 +14,14 @@ const routes: Routes = [{ path: "/lazy", loadChildren: "./lazy/lazy.module" },{ 
     HttpModule,
     RouterModule.forChild(routes)
   ],
-  providers: [SystemJsNgModuleLoader],
-  entryComponents: []
+  providers: [SystemJsNgModuleLoader]
 })
 export class AppModule {
 
-  private moduleFactory: any;
-
-  constructor(private resolver: ComponentFactoryResolver, private compiler: Compiler, private injector: Injector, private moduleLoader: SystemJsNgModuleLoader) { }
+  constructor(private injector: Injector, private moduleLoader: SystemJsNgModuleLoader) { }
 
   ngDoBootstrap(appRef: ApplicationRef) {
     // load only in the case it's needed.
-    // TODO: load in parallel?!
     let modules = document.querySelectorAll("[data-module]");
     for (let i in modules) if (modules.hasOwnProperty(i)) {
       let module = modules[i].getAttribute('data-module');

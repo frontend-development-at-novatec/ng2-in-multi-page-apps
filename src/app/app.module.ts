@@ -4,17 +4,10 @@ import { SystemJsNgModuleLoader, NgModule, ApplicationRef, ComponentFactory, Com
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-import { AppComponent } from './app.component';
-import { AppComponentTwoComponent } from './app-component-two/app-component-two.component';
-
-const components = [AppComponent, AppComponentTwoComponent];
-const routes: Routes = [{ path: "", loadChildren: "./lazy/lazy.module" }]
+const routes: Routes = [{ path: "/lazy", loadChildren: "./lazy/lazy.module" },{ path: "/lazy-two", loadChildren: "./lazy-two/lazy-two.module" }]
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    AppComponentTwoComponent
-  ],
+  declarations: [],
   imports: [
     BrowserModule,
     FormsModule,
@@ -22,7 +15,7 @@ const routes: Routes = [{ path: "", loadChildren: "./lazy/lazy.module" }]
     RouterModule.forChild(routes)
   ],
   providers: [SystemJsNgModuleLoader],
-  entryComponents: [AppComponent, AppComponentTwoComponent]
+  entryComponents: []
 })
 export class AppModule {
 
@@ -31,29 +24,30 @@ export class AppModule {
   constructor(private resolver: ComponentFactoryResolver, private compiler: Compiler, private injector: Injector, private moduleLoader: SystemJsNgModuleLoader) { }
 
   ngDoBootstrap(appRef: ApplicationRef) {
-    // initialize non lazy components
-    components.forEach((componentDef: Type<{}>) => {
-      console.log("componentDef", componentDef);
-      const factory = this.resolver.resolveComponentFactory(componentDef);
-      if (document.querySelector(factory.selector)) {
-        appRef.bootstrap(factory);
-      }
-    });
-    // TODO: load only if needed.
-    this.moduleLoader.load('./lazy/lazy.module#LazyModule')
-      .then((moduleFactory: NgModuleFactory<any>) => {
-        const ngModuleRef = moduleFactory.create(this.injector);
-        const componentsInjects = ngModuleRef.injector.get("components") as any[];
-        console.log("componentsInjects", componentsInjects);
-        componentsInjects.forEach((components: Type<{}>[]) => {
-          components.forEach((component: Type<{}>) => {
-            const compFactory = ngModuleRef.componentFactoryResolver.resolveComponentFactory(component);
-            if (document.querySelector(compFactory.selector)) {
-              appRef.bootstrap(compFactory);
-            }
+    // load only in the case it's needed.
+    // TODO: load in parallel?!
+    let modules = document.querySelectorAll("[data-module]");
+    for (let i in modules) if (modules.hasOwnProperty(i)) {
+      let module = modules[i].getAttribute('data-module');
+      let file = modules[i].getAttribute('data-module-file');
+      if (file && module) {
+        this.moduleLoader.load(file + '#' + module)
+          .then((moduleFactory: NgModuleFactory<any>) => {
+            const ngModuleRef = moduleFactory.create(this.injector);
+            const componentsInjects = ngModuleRef.injector.get("components") as any[];
+            //console.log("componentsInjects", componentsInjects);
+            componentsInjects.forEach((components: Type<{}>[]) => {
+              components.forEach((component: Type<{}>) => {
+                const compFactory = ngModuleRef.componentFactoryResolver.resolveComponentFactory(component);
+                if (document.querySelector(compFactory.selector)) {
+                  appRef.bootstrap(compFactory);
+                }
+              });
+            });
           });
-        });
-      });
+      }
+    }
+
 
   }
 }

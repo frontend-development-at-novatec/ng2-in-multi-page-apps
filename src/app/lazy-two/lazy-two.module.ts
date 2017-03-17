@@ -8,7 +8,7 @@ import { LazyTwoComponent } from './lazy-two.component';
   ],
   declarations: [LazyTwoComponent],
   providers: [
-    { provide: "components", useValue: [LazyTwoComponent], multi: true }
+    { provide: 'components', useValue: [LazyTwoComponent], multi: true }
   ],
   entryComponents: [LazyTwoComponent]
 })

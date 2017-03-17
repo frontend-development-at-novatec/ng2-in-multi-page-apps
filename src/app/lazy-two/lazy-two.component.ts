@@ -4,4 +4,4 @@ import { Component } from '@angular/core';
   selector: 'app-lazy-two',
   template: '<p>works too</p>'
 })
-export class LazyTwoComponent{}
+export class LazyTwoComponent {}

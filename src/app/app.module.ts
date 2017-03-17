@@ -4,7 +4,7 @@ import { SystemJsNgModuleLoader, NgModule, ApplicationRef, Injector, NgModuleFac
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-const routes: Routes = [{ path: "/lazy", loadChildren: "./lazy/lazy.module" }, { path: "/lazy-two", loadChildren: "./lazy-two/lazy-two.module" }]
+const routes: Routes = [{ loadChildren: './lazy/lazy.module' }, { loadChildren: './lazy-two/lazy-two.module' }];
 
 @NgModule({
   declarations: [],
@@ -21,29 +21,25 @@ export class AppModule {
   constructor(private injector: Injector, private moduleLoader: SystemJsNgModuleLoader) { }
 
   ngDoBootstrap(appRef: ApplicationRef) {
-    // load only in the case it's needed.
-    let modules = document.querySelectorAll("[data-module]");
-    for (let i in modules) if (modules.hasOwnProperty(i)) {
-      let module = modules[i].getAttribute('data-module');
-      let file = modules[i].getAttribute('data-module-file');
-      if (file && module) {
-        this.moduleLoader.load(file + '#' + module)
-          .then((moduleFactory: NgModuleFactory<any>) => {
-            const ngModuleRef = moduleFactory.create(this.injector);
-            const componentsInjects = ngModuleRef.injector.get("components") as any[];
-            //console.log("componentsInjects", componentsInjects);
-            componentsInjects.forEach((components: Type<{}>[]) => {
-              components.forEach((component: Type<{}>) => {
-                const compFactory = ngModuleRef.componentFactoryResolver.resolveComponentFactory(component);
-                if (document.querySelector(compFactory.selector)) {
-                  appRef.bootstrap(compFactory);
-                }
+    const widgets = document.querySelectorAll('[data-module-path]');
+    for (const i in widgets) {
+      if (widgets.hasOwnProperty(i)) {
+        const modulePath = widgets[i].getAttribute('data-module-path');
+        if (modulePath) {
+          this.moduleLoader.load(modulePath)
+            .then((moduleFactory: NgModuleFactory<any>) => {
+              const ngModuleRef = moduleFactory.create(this.injector);
+              ngModuleRef.injector.get('components').forEach((components: Type<{}>[]) => {
+                components.forEach((component: Type<{}>) => {
+                  const compFactory = ngModuleRef.componentFactoryResolver.resolveComponentFactory(component);
+                  if (document.querySelector(compFactory.selector)) {
+                    appRef.bootstrap(compFactory);
+                  }
+                });
               });
             });
-          });
+        }
       }
     }
-
-
   }
 }

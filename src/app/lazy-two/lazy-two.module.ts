@@ -4,7 +4,7 @@ import { LazyTwoComponent } from './lazy-two.component';
 
 @NgModule({
   imports: [
-    CommonModule,
+    CommonModule
   ],
   declarations: [LazyTwoComponent],
   providers: [

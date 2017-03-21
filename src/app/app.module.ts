@@ -3,6 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { SystemJsNgModuleLoader, NgModule, ApplicationRef, Injector, NgModuleFactory, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { CoreModule } from './core.module';
+
 
 const routes: Routes = [{ loadChildren: './lazy/lazy.module' }, { loadChildren: './lazy-two/lazy-two.module' }];
 
@@ -12,7 +14,8 @@ const routes: Routes = [{ loadChildren: './lazy/lazy.module' }, { loadChildren: 
     BrowserModule,
     FormsModule,
     HttpModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    CoreModule.forRoot()
   ],
   providers: [SystemJsNgModuleLoader]
 })
